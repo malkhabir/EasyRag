@@ -1,7 +1,7 @@
 
 # EasyRag
 
-<p align="center"><img src="./finrag.png" alt="EasyRag logo" style="max-width:220px; height:auto;"></p>
+<p align="center"><img src="./finrag.png" alt="EasyRag logo" style="max-width:220px; height:100px;"></p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version">
