@@ -2,6 +2,7 @@
 pydantic>=2.0.0
 pydantic-settings>=2.0.0
 python-dotenv>=1.0.0
+pyyaml
 
 # FastAPI and server
 fastapi>=0.104.0
@@ -37,8 +38,16 @@ sentence-transformers
 # LlamaIndex
 llama-index
 llama-index-embeddings-huggingface
+llama-index-embeddings-openai
 llama-index-vector-stores-qdrant
 llama-index-llms-ollama
+llama-index-llms-openai
+llama-index-llms-anthropic
+
+# AI Provider dependencies (optional)
+openai>=1.0.0  # OpenAI API
+anthropic>=0.3.0  # Anthropic Claude API
+ollama>=0.1.0  # Ollama client
 
 # Vector database
 qdrant-client

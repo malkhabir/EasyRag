@@ -1,4 +1,4 @@
-# FinRag RAG Service - Production Structure
+# EasyRag RAG Service - Production Structure
 
 Clean, production-ready directory structure following FAANG best practices.
 
