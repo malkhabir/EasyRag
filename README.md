@@ -33,7 +33,7 @@ EasyRag is a modular Retrieval-Augmented Generation (RAG) platform that extracts
 
 <div style="flex:1;min-width:320px">
     <p><strong>Web Interface - Query & Highlight</strong></p>
-    <img src="rag-service/examples/example.png" alt="Query response with source highlighting" style="max-width:100%;border:1px solid #ddd;padding:4px;" />
+    <img src="./docs/example.png" alt="Query response with source highlighting" style="max-width:100%;border:1px solid #ddd;padding:4px;" />
     <p style="font-size:90%">Ask questions about your uploaded documents and get AI-powered answers with precise source highlighting. The system identifies exactly where in the PDF the answer was found, enabling quick verification and traceability.</p>
 </div>
 ---
