@@ -1,5 +1,5 @@
 # ==============================================================================
-# FinRag Model Configuration
+# EasyRag Model Configuration
 # ==============================================================================
 # This is your SINGLE configuration file for all model settings.
 # Edit this file to swap models, change providers, or customize behavior.

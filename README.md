@@ -1,403 +1,305 @@
 
-<h1 align="center"><img src="./finrag.png" alt="FinRag logo" style="max-width:200px; height:auto;"></h1>
+# EasyRag
+
+<p align="center"><img src="./finrag.png" alt="EasyRag logo" style="max-width:220px; height:auto;"></p>
+
 <p align="center">
   <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
   <img src="https://img.shields.io/badge/python-3.11+-yellow.svg" alt="Python">
   <img src="https://img.shields.io/badge/react-18+-61DAFB.svg" alt="React">
   <img src="https://img.shields.io/badge/docker-ready-2496ED.svg" alt="Docker">
-  <img src="https://img.shields.io/badge/plug%20%26%20play-models-purple.svg" alt="Plug & Play">
 </p>
 
-<p align="center">
-  <strong>Enterprise-Grade Document Intelligence Platform</strong>
-</p>
-
-<p align="center">
-  FinRag is a production-ready, modular RAG (Retrieval-Augmented Generation) system designed for financial document analysis.<br/>
-  Extract tables, query documents with natural language, and get AI-powered answers with precise source highlighting.
-</p>
+EasyRag is a modular, enterprise-grade Retrieval-Augmented Generation (RAG) platform that extracts structured data from PDF documents with high precision. Features a pluggable provider architecture supporting any combination of local and cloud AI services.
 
 ---
 
-## Key Features
+## Overview
 
-| Feature | Description |
-|---------|-------------|
-| **Smart Table Extraction** | AI-powered table detection using DIT/TADetect with Camelot for precise extraction |
-| **Semantic Search** | BGE-M3 embeddings with 1024 dimensions for accurate document retrieval |
-| **Conversational AI** | Natural language queries powered by local LLMs (Ollama) |
-| **Source Highlighting** | Click any source to view the exact location in the PDF with visual highlighting |
-| **Plug and Play Models** | Easily swap LLMs and embedding models via configuration |
-| **Modular Architecture** | Clean separation of concerns for easy customization |
+- **Modular Architecture**: Pluggable provider system supporting Ollama, OpenAI, Anthropic, HuggingFace
+- **Document Processing**: Extracts structured tables from PDFs with precise coordinate mapping
+- **Semantic Search**: Vector embeddings indexed in Qdrant for fast, accurate retrieval  
+- **Runtime Flexibility**: Switch between providers via API without restart
 
 ---
 
-## Architecture
+## Table of Contents
 
-```
-+------------------------------------------------------------------+
-|                         Frontend (React)                          |
-|  +------------+  +----------------+  +-------------------------+  |
-|  | Upload     |  | Chat Window    |  | PDF Viewer + Highlight  |  |
-|  +------------+  +----------------+  +-------------------------+  |
-+------------------------------------------------------------------+
-                              | REST API
-+------------------------------------------------------------------+
-|                      RAG Service (FastAPI)                        |
-|  +-------------------+  +--------------+  +------------------+    |
-|  | Document Builder  |  | Query Engine |  | File Service     |    |
-|  | - Table Extract   |  | - Semantic   |  | - Upload/Delete  |    |
-|  | - Text Extract    |  | - LLM Answer |  | - PDF Serving    |    |
-|  +-------------------+  +--------------+  +------------------+    |
-+------------------------------------------------------------------+
-         |                      |                    |
-    +----+----+           +-----+----+         +----+----+
-    | Qdrant  |           | Ollama   |         | Models  |
-    | Vector  |           | LLM      |         | BGE-M3  |
-    | DB      |           |          |         |         |
-    +---------+           +----------+         +---------+
-```
+- Quick Start
+- Provider Architecture
+- Features
+- Installation
+- Configuration
+- Local LLM (GPU)
+- Table Detection (TADetect → DIT)
+- Pipeline: PDF → Raster → Detect → Extract
+- Examples & Docs
+- Developer Notes
+- Contributing
+- License
 
 ---
 
 ## Quick Start
 
-### Prerequisites
+**Prerequisites**: Python 3.11+, Node.js 18+, Docker Compose, 8GB+ RAM recommended
 
-- Python 3.11+
-- Node.js 18+
-- Docker and Docker Compose
-- 8GB+ RAM recommended
+**Automated Setup** (Windows):
 
-### One-Click Setup (Recommended)
-
-**Windows:**
 ```powershell
 .\setup.bat
 ```
 
-**Linux/macOS:**
-```bash
-chmod +x setup.sh
-./setup.sh
-```
-
-This will automatically:
-- Check and validate prerequisites
-- Start Docker containers (Qdrant, Ollama)
-- Download AI models (LLM + Embeddings)
-- Install all dependencies
-- Configure environment
-
-### Manual Setup
-
-<details>
-<summary>Click to expand manual setup instructions</summary>
-
-#### 1. Clone and Setup
+**Manual Setup**:
 
 ```bash
-git clone https://github.com/yourusername/FinRag.git
-cd FinRag
-```
-
-#### 2. Start Infrastructure
-
-```bash
-# Start Qdrant vector database
-docker-compose up -d qdrant ollama
-
-# Pull your preferred LLM
-docker-compose exec ollama ollama pull phi3
-```
-
-#### 3. Setup Backend
-
-```bash
+git clone https://github.com/malkhabir/EasyRag.git
+cd EasyRag
+# Backend
 cd rag-service
 python -m venv venv
-source venv/bin/activate  # Windows: venv\Scripts\activate
+# Windows: venv\Scripts\activate
 pip install -r requirements.txt
 python -m uvicorn main:app --host 0.0.0.0 --port 8080 --reload
-```
-
-#### 4. Setup Frontend
-
-```bash
-cd frontend
+# Frontend
+cd ../frontend
 npm install
 npm run dev
 ```
 
-</details>
-
-### 5. Open App
-
-Navigate to http://localhost:5173
+**Access Points**:
+- Frontend: http://localhost:5173
+- API Documentation: http://localhost:8080/docs
 
 ---
 
-## Service URLs
+## Provider Architecture
 
-| Service | URL | Description |
-|---------|-----|-------------|
-| **Frontend** | http://localhost:5173 | React web application |
-| **Backend API** | http://localhost:8080 | FastAPI REST endpoints |
-| **API Docs** | http://localhost:8080/docs | Swagger/OpenAPI documentation |
-| **Qdrant Dashboard** | http://localhost:6335/dashboard | Vector database UI |
-| **Ollama** | http://localhost:11435 | LLM API endpoint |
+EasyRag features a modular provider system that supports any combination of local and cloud AI services. Switch providers at runtime via API without restarting the application.
 
----
+### Supported Providers
 
-## Plug & Play Model Configuration
+**LLM Providers**:
+- **Ollama** (local): `phi3`, `llama2`, `codellama` 
+- **OpenAI**: `gpt-3.5-turbo`, `gpt-4`, `gpt-4-turbo`
+- **Anthropic**: `claude-3-sonnet`, `claude-3-haiku`
+- **Azure OpenAI**: Enterprise deployments
 
-FinRag supports easy model swapping via YAML configuration. No code changes required!
+**Embedding Providers**:
+- **HuggingFace** (local): `BAAI/bge-m3`, `sentence-transformers/all-MiniLM-L6-v2`
+- **OpenAI**: `text-embedding-3-small`, `text-embedding-3-large`
+- **Azure OpenAI**: Enterprise embeddings
 
-### Model Configuration File
+### Configuration
 
-Edit `config/models.yaml` to customize your AI stack:
+Configure providers in `config/providers.yaml`:
 
 ```yaml
-# =============================================================================
-# FinRag Models Configuration
-# =============================================================================
+active_llm_provider: "local"
+active_embedding_provider: "huggingface"
 
-# Active preset - switch between configurations instantly
-active_preset: development  # Options: development, production, fast, accuracy
-
-# -----------------------------------------------------------------------------
-# LLM Models (Language Models for Q&A)
-# -----------------------------------------------------------------------------
 llm_providers:
-  ollama:
-    enabled: true
-    host: localhost
-    port: 11435
-    models:
-      phi3:           # Fast, efficient, great for tables
-        context_window: 4096
-        recommended_for: ["development", "fast-responses"]
-      llama3:         # Better reasoning, larger context
-        context_window: 8192
-        recommended_for: ["production", "complex-queries"]
-      mistral:        # Balanced performance
-        context_window: 8192
-        recommended_for: ["general-purpose"]
-      mixtral:        # Highest quality, MoE architecture
-        context_window: 32768
-        recommended_for: ["accuracy", "long-documents"]
-
-# -----------------------------------------------------------------------------
-# Embedding Models (for semantic search)
-# -----------------------------------------------------------------------------
-embedding_models:
-  bge-m3:            # Default: Best quality
-    name: "BAAI/bge-m3"
-    dimensions: 1024
-    recommended_for: ["production", "accuracy"]
-  minilm:            # Lightweight: Fast inference
-    name: "sentence-transformers/all-MiniLM-L6-v2"
-    dimensions: 384
-    recommended_for: ["development", "fast"]
-  e5-large:          # Alternative: Strong performance
-    name: "intfloat/e5-large-v2"
-    dimensions: 1024
-    recommended_for: ["accuracy"]
-
-# -----------------------------------------------------------------------------
-# Presets (Quick Configuration Profiles)
-# -----------------------------------------------------------------------------
-presets:
-  development:
-    llm: phi3
-    embedding: bge-m3
-    description: "Fast iteration, good quality"
-  production:
-    llm: llama3
-    embedding: bge-m3
-    description: "Optimized for quality and reliability"
-  fast:
-    llm: phi3
-    embedding: minilm
-    description: "Maximum speed, lower resource usage"
-  accuracy:
-    llm: mixtral
-    embedding: bge-m3
-    description: "Best quality, higher resource usage"
+  local:
+    provider: "ollama"
+    model_name: "phi3"
+    host: "localhost"
+    port: 11434
+    
+  openai:
+    provider: "openai" 
+    model_name: "gpt-3.5-turbo"
+    # api_key: ${OPENAI_API_KEY}
 ```
 
-### Switching Models
+### Runtime Provider Switching
 
-**Option 1: Change Preset**
-```yaml
-# config/models.yaml
-active_preset: production  # Switch from development to production
-```
+Switch providers via API:
 
-**Option 2: Environment Variables**
 ```bash
-export OLLAMA_MODEL=llama3.1
-export EMBEDDING_MODEL=BAAI/bge-m3
-./setup.sh --models-only
+# List available providers
+curl http://localhost:8080/api/v1/providers/llm
+
+# Switch LLM provider
+curl -X POST http://localhost:8080/api/v1/providers/llm/switch \
+  -H "Content-Type: application/json" \
+  -d '{"provider_name": "openai", "model_name": "gpt-4"}'
+
+# Check system status
+curl http://localhost:8080/api/v1/providers/status
 ```
 
-**Option 3: Pull New Models**
+---
+
+## Technology Stack & Architecture
+
+**Frontend Layer**: React + Vite application with PDF viewer, document upload, and interactive querying interface
+
+**Backend Layer**: FastAPI service with modular provider architecture supporting multiple AI backends
+
+**Infrastructure Layer**: Qdrant vector database, configurable LLM runtime, and model artifact storage
+
+---
+
+## Core Features
+
+- **Modular Provider System**: Pluggable architecture supporting any LLM or embedding service
+- **Runtime Model Switching**: Change AI providers via API without application restart
+- **Advanced Table Detection**: Two-stage pipeline (TADetect + DIT) optimizing for both speed and accuracy
+- **Multi-format Export**: Structured data output in CSV, Markdown, and JSON with preserved coordinates
+- **Configurable Embeddings**: Flexible model selection with row-level semantic indexing
+- **Source Attribution**: LLM responses include precise document locations and highlighting
+
+---
+
+## Installation & Running
+
+Automated setup scripts available for both Windows (`setup.bat`) and Linux/macOS (`setup.sh`).
+
+**Docker Infrastructure**:
+
 ```bash
-# Pull a new LLM
-docker-compose exec ollama ollama pull llama3.1
-
-# Update config
-# Edit config/models.yaml with the new model name
+docker compose up -d qdrant ollama
 ```
+
+See `docker-compose.yml` for GPU-enabled Ollama configurations.
 
 ---
 
 ## Configuration
 
-All configurations are centralized in `rag-service/app/core/config.py`. 
-Use environment variables or edit directly.
+### Environment Setup
 
-### Model Configuration
+Copy `.env.example` to `.env` and configure your providers:
 
-```python
-# rag-service/app/core/config.py
-
-class Settings(BaseSettings):
-    # ===========================================================
-    # LLM CONFIGURATION - Swap your preferred model here
-    # ===========================================================
-    ollama_model: str = "phi3"          # Current: Fast, good at tables
-    # ollama_model: str = "llama3"      # Alternative: Better reasoning
-    # ollama_model: str = "mistral"     # Alternative: Balanced
-    # ollama_model: str = "mixtral"     # Alternative: Best quality, slower
-    
-    ollama_host: str = "localhost"
-    ollama_port: int = 11434
-    ollama_timeout: float = 120.0
-    
-    # ===========================================================
-    # EMBEDDING CONFIGURATION - Swap your embedding model here
-    # ===========================================================
-    embedding_model_name: str = "BAAI/bge-m3"     # Current: 1024 dims
-    # embedding_model_name: str = "BAAI/bge-large-en-v1.5"  # 1024 dims
-    # embedding_model_name: str = "sentence-transformers/all-MiniLM-L6-v2"  # 384 dims
-    
-    embedding_model_cache_dir: str = "models/bge-m3"
-    
-    # ===========================================================
-    # VECTOR DATABASE CONFIGURATION
-    # ===========================================================
-    qdrant_host: str = "localhost"
-    qdrant_port: int = 6333
-    qdrant_collection_name: str = "accounting_docs"
-    qdrant_vector_size: int = 1024    # Must match embedding dimensions!
+```bash
+cp .env.example .env
 ```
 
-### Environment Variables
+Key configuration options:
 
-Create a `.env` file in the project root:
+```bash
+# Active Providers
+EASYRAG_ACTIVE_LLM_PROVIDER=local
+EASYRAG_ACTIVE_EMBEDDING_PROVIDER=huggingface
 
-```env
-# LLM Settings
-OLLAMA_HOST=localhost
-OLLAMA_PORT=11434
-OLLAMA_MODEL=phi3
+# API Keys (for cloud providers)
+OPENAI_API_KEY=your_openai_api_key_here
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
 
-# Vector DB Settings
-QDRANT_HOST=localhost
-QDRANT_PORT=6333
+# Local Ollama Configuration
+EASYRAG_LLM_PROVIDERS__LOCAL__HOST=localhost
+EASYRAG_LLM_PROVIDERS__LOCAL__PORT=11434
+```
 
-# App Settings
-DEBUG=false
-LOG_LEVEL=INFO
+### Provider Configuration
+
+Detailed provider settings in `config/providers.yaml`. The system supports:
+
+- **Hot-swapping**: Change providers via API without restart
+- **Health monitoring**: Automatic provider health checks
+- **Fallback support**: Graceful handling of unavailable providers
+- **Multi-tenant**: Different models per tenant/user (enterprise)
+
+---
+
+## Local LLM (Ollama) — GPU considerations
+
+Ensure host NVIDIA drivers match the CUDA runtime in the Ollama GPU image. For Linux use `nvidia-docker2`/`nvidia-container-toolkit`. On Windows, use Docker Desktop + WSL2 + NVIDIA WSL drivers.
+
+Quick checks:
+
+```bash
+nvidia-smi
+docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
+```
+
+Compose snippet (request GPUs):
+
+```yaml
+services:
+  ollama:
+    image: ollama/ollama:latest-gpu
+    device_requests:
+      - driver: nvidia
+        count: all
+        capabilities: [gpu]
 ```
 
 ---
 
-## Project Structure
+## Table Detection (TADetect → DIT)
 
-```
-FinRag/
-|-- config/                      # Configuration files
-|   +-- models.yaml              # Plug & Play model configuration
-|
-|-- frontend/                    # React + Vite frontend
-|   |-- src/
-|   |   |-- comps/              # Reusable components
-|   |   |   |-- chat/           # ChatWindow, PDFViewer
-|   |   |   |-- UploadWindow.jsx
-|   |   |   +-- QueryForm.jsx
-|   |   |-- pages/              # Page components
-|   |   +-- index.css           # CSS variables and theming
-|   +-- package.json
-|
-|-- rag-service/                 # Python FastAPI backend
-|   |-- app/
-|   |   |-- api/v1/             # API endpoints
-|   |   |-- core/               # Config, logging
-|   |   |-- db/                 # Qdrant client
-|   |   |-- document_processing/ # Core extraction logic
-|   |   |   |-- document_builder.py   # Orchestrator
-|   |   |   |-- table_extraction.py   # Camelot + coordinates
-|   |   |   |-- text_extraction.py    # Text with coordinates
-|   |   |   +-- table_detection.py    # DIT/TADetect
-|   |   |-- models/             # LLM and embedding wrappers
-|   |   +-- services/           # Business logic
-|   +-- requirements.txt
-|
-|-- setup.sh                    # Linux/macOS setup script
-|-- setup.bat                   # Windows setup script
-|-- docker-compose.yml          # Qdrant + Ollama
-+-- README.md
-```
+Pipeline rationale:
+
+- TADetect (fast): global high-recall proposals to avoid missed tables.
+- DIT (refine): per-crop transformer model that returns exact cell boundaries and nested structure.
+
+This combination gives strong recall and the precise structure necessary for extraction and LLM-friendly serialization.
 
 ---
 
-## Roadmap
+## Pipeline: PDF → Raster → Detect → Extract
 
-### Completed
+Visual diagram and math are in `docs/pipeline_diagram.svg`.
 
-- [x] PDF upload and processing
-- [x] AI-powered table detection (DIT/TADetect)
-- [x] Table extraction with precise coordinates
-- [x] Text block extraction with coordinates
-- [x] Semantic search with BGE-M3 embeddings
-- [x] LLM-powered Q&A with Ollama
-- [x] Source highlighting in PDF viewer
-- [x] Multi-file navigation
-- [x] CSS theming with variables
-- [x] Icon system for customization
-- [x] **Plug & Play Model Configuration** (YAML-based)
-- [x] **One-Click Setup Scripts** (Windows + Linux/macOS)
+Steps summary:
 
-### In Progress
+1. Rasterize PDF page → image (e.g., 300 DPI).
+2. Run TADetect → get candidate boxes (pixels).
+3. Crop + run DIT on proposals → fine cell boxes (relative to crop).
+4. Expand/pad boxes and normalize coordinates.
+5. IOU filtering: remove tiny/duplicate boxes and merge overlapping detections.
+6. Map final pixel coords → PDF points for precise frontend highlights.
+7. Parse tables (Camelot/custom) → rows/cells, serialize to CSV/JSON/Markdown.
+8. Create embedding records (text + metadata) and assemble `Document` objects for indexing.
 
-- [ ] Model hot-swapping via API (runtime switching)
-- [ ] Embedding model selection UI
-- [ ] Batch document processing
-- [ ] Config loader integration with Python backend
+Why store both pixel and PDF coords?
 
-### Planned
-
-- [ ] **Plugin System** - Drop-in extractors for different document types
-- [ ] **Multi-tenant** - User isolation and access control
-- [ ] **Cloud Deployment** - AWS/Azure/GCP templates + Terraform
-- [ ] **API Keys** - Rate limiting and usage tracking
-- [ ] **Webhook Support** - Notify external systems on events
-- [ ] **Document Types** - Excel, Word, PowerPoint support
-- [ ] **OCR Integration** - Tesseract/EasyOCR for scanned documents
-- [ ] **Fine-tuning Pipeline** - Custom model training on your data
-- [ ] **Analytics Dashboard** - Query patterns, usage metrics
-- [ ] **Export** - PDF annotations, CSV/Excel export
-- [ ] **OpenAI/Anthropic Providers** - Cloud LLM fallback
-- [ ] **Model Benchmarking** - Compare model performance on your data
+- Pixel coords are useful for image overlays and debugging.
+- PDF coords are essential to map highlights to the original vector PDF for exact provenance.
 
 ---
 
-## Extending FinRag
+## Examples & Docs
 
-### Adding a New LLM Provider
+- TADetect summary image: `rag-service/imgs/rasterized/PDF Invoice Example_temp_page_0.png`
+- DIT annotated invoice: `rag-service/imgs/rasterized/PDF Invoice Example_annotated_page_0.png`
+- Pipeline diagram: `docs/pipeline_diagram.svg`
+
+Additional documentation and examples available in the repository structure.
+
+---
+
+## Developer Notes
+
+- Core extraction: `rag-service/app/document_processing/`
+- Vector DB: `rag-service/app/db/qdrant.py`
+- LLM/embeddings wrappers: `rag-service/app/models/`
+
+**Technical Considerations**:
+
+- Maintain consistent embedding dimensions across ingestion and query pipelines
+- Select uniform embedding granularity (row-level or cell-level) per dataset for optimal retrieval performance
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/your-enhancement`
+3. Implement changes with appropriate test coverage
+4. Submit a pull request with detailed description
+
+---
+
+## License
+
+MIT — see `LICENSE`.
+
+---
+
+<p align="center">Professional document intelligence platform built with modern AI/ML technologies</p>
 
 ```python
 # rag-service/app/models/llm.py
@@ -486,6 +388,193 @@ See [LAUNCH_INSTRUCTIONS.md](LAUNCH_INSTRUCTIONS.md) for detailed setup.
 
 ---
 
+## Local LLM (Ollama) — GPU & NVIDIA considerations
+
+EasyRag supports running local LLMs via Ollama. For GPU-accelerated inference (recommended for larger models), ensure the host and Docker environment are configured for NVIDIA GPU passthrough. Below are practical checks, installation hints, Docker/Compose snippets, and troubleshooting tips.
+
+- **Quick checks**
+  - Verify driver and GPU visibility on the host:
+
+```bash
+nvidia-smi
+```
+
+  - Verify Docker can access GPUs:
+
+```bash
+docker run --rm --gpus all nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi
+```
+
+- **Driver / CUDA compatibility rule**
+  - The host NVIDIA driver must be recent enough to support the CUDA runtime used by your Ollama image. If you see a mismatch, update the host driver.
+
+- **Install hints**
+  - Ubuntu (example):
+
+```bash
+# Install an appropriate NVIDIA driver (follow your distro docs)
+sudo apt install nvidia-driver-535
+
+# Install NVIDIA Container Toolkit
+distribution=$(. /etc/os-release;echo $ID$VERSION_ID)
+curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -
+curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
+sudo apt update
+sudo apt install -y nvidia-docker2
+sudo systemctl restart docker
+```
+
+  - Windows (WSL2 + Docker Desktop): install the **NVIDIA WSL driver**, enable WSL2 backend in Docker Desktop, and test `nvidia-smi` inside WSL.
+
+- **Docker Compose (recommended) — request GPUs**
+  - Use `device_requests` for Compose v2+ to request GPUs for the `ollama` service:
+
+```yaml
+services:
+  ollama:
+    image: ollama/ollama:latest-gpu   # use a GPU-enabled tag if available
+    device_requests:
+      - driver: nvidia
+        count: all
+        capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+```
+
+- **Running Ollama with GPU**
+  - Run a GPU-enabled Ollama image with Docker:
+
+```bash
+docker run --gpus all --rm -it ollama/ollama:gpu-tag ollama serve
+```
+
+- **Model & runtime considerations**
+  - Large LLMs require significant VRAM (12GB+ for many models). Prefer models that support FP16 / quantization to lower memory usage.
+  - Multi-GPU setups may require sharding or frameworks that support parallelism.
+
+- **Troubleshooting**
+  - `CUDA driver version is insufficient` → update the NVIDIA driver on the host.
+  - `could not select device driver` → install/restart `nvidia-docker2` or enable WSL2 GPU support on Windows.
+  - `nvidia-smi` works on host but Docker test fails → confirm `nvidia-container-toolkit` is installed and `docker` restarted.
+ 
+## Table Detection Examples (TADetect → DIT)
+
+Below are two example outputs from the table-detection pipeline used by EasyRag. The first is a compact "detection summary" image showing high-level regions identified as tables (a fast TADetect pass). The second is an annotated invoice page showing detailed table cell boundaries and the final structure used for extraction (a DIT + Camelot pass).
+
+<div style="display:flex;gap:24px;flex-wrap:wrap">
+  <div style="flex:1;min-width:320px">
+    <p><strong>Table Detection Summary (coarse)</strong></p>
+    <img src="rag-service/examples/TADECT.png" alt="Table detection summary" style="max-width:100%;border:1px solid #ddd;padding:4px;" />
+    <p style="font-size:90%">Fast region proposals from TADetect. These boxes identify candidate table areas quickly so we can focus heavier processing where it matters.</p>
+  </div>
+
+  <div style="flex:1;min-width:320px">
+    <p><strong>Annotated Invoice (detailed)</strong></p>
+    <img src="rag-service/examples/DIT.png" alt="Annotated invoice with table cells" style="max-width:100%;border:1px solid #ddd;padding:4px;" />
+    <p style="font-size:90%">Detailed layout and cell boundaries produced by the DIT stage and post-processing (Camelot/coordinate extraction). This output is converted to CSV/JSON for downstream indexing and LLM prompts.</p>
+  </div>
+</div>
+
+Why we run TADetect first, then DIT
+- TADetect (fast detector): Locate candidate table regions across the whole page quickly. It's optimized for speed and high recall so we don't miss tables.
+- DIT (detailed detector / transformer-based refinement): Run only on the candidate regions found by TADetect to produce precise cell boundaries, nested tables, and fine-grained structure suitable for extraction.
+
+This two-stage approach gives us the best trade-off between speed and accuracy: cheap global scanning followed by an expensive, precise pass only where needed.
+
+How LLMs ingest tables (and why we extract structure)
+- LLMs perform best when given concise, structured table data rather than raw OCR text. We therefore convert detected tables into:
+  - tabular CSV or Markdown (header row + typed columns),
+  - a short textual schema summary (columns, types, key units), and
+  - contextual metadata (page number, coordinates, source filename) so answers can link back to the source.
+- Practical tips we apply:
+  - Preserve header rows and column order — they give models important semantic anchors.
+  - Avoid pasting very wide tables directly into prompts; instead provide a small representative chunk + a schema summary and point the model to the exact rows when needed.
+  - Provide the LLM with provenance (page/coords) when the user asks for source highlighting or verification.
+
+Why this matters for EasyRag
+- Accurate table localization + structure extraction enables precise semantic indexing (embeddings per row/cell) so retrieval returns the most relevant table rows for a query.
+- Structured table outputs allow the query service to produce succinct, verifiable answers and to include clickable source highlights in the frontend PDF viewer.
+ 
+## PDF → Raster → Detection → Extraction Pipeline (step-by-step)
+
+This section explains the exact path a PDF takes inside EasyRag from an uploaded file to a structured `Document` object that is indexed for search and used in LLM prompts.
+
+1. PDF rasterization
+  - Convert each PDF page to a high-resolution raster image (PNG/JPEG). Rasterization normalizes fonts/positions and is required for vision-based detectors (TADetect / DIT) that operate on pixels.
+  - Typical settings: 300 DPI (tunable by file type and expected table detail).
+
+2. Fast region proposal (TADetect)
+  - Run a lightweight, high-recall table detector across the raster image to obtain candidate table bounding boxes. This stage is optimized for speed and to avoid missed tables.
+
+3. Region crop & refinement (DIT)
+  - For each candidate box, crop the raster image and run the DIT (detailed layout transformer) model to predict precise cell boundaries and nested table structure.
+  - DIT outputs fine-grained box coordinates relative to the cropped image plus labels for header/footer/cell types.
+
+4. Expand & normalize box coordinates
+  - Optionally expand the DIT boxes slightly (padding) to include cell borders and nearby context (helps table parsers like Camelot recover separators).
+  - Normalize coordinate formats so all boxes use the same origin/units (e.g., pixels, top-left origin).
+
+5. IOU-based filtering & de-duplication
+  - Compute pairwise IOU (intersection-over-union) among detected boxes and between TADetect proposals and DIT boxes.
+  - Use IOU thresholds to: (a) drop tiny false-positive boxes, (b) merge near-duplicate detections, and (c) prefer higher-confidence DIT boxes over coarse proposals.
+  - This reduces noise and prevents overlapping/ambiguous table regions from polluting downstream extraction.
+
+6. Convert coordinates back to PDF space
+  - Map the final pixel coordinates (from raster / crop math) back to PDF coordinates (points) so the frontend can highlight exact areas on the original PDF page.
+  - Store both coordinate systems — pixel for image overlays and PDF points for vector-aware viewers.
+
+7. Table parsing & serialization
+  - For each final table region, run a table parser (e.g., Camelot or custom coordinate-based extractor) to produce rows/cells.
+  - Serialize table outputs to CSV, Markdown, and a compact JSON representation that preserves header rows, cell spans, and numeric parsing.
+
+8. Embedding metadata & document object creation
+  - For indexing, create embedding entries at a chosen granularity (row-level, cell-level, or table-level). Each embedding record includes:
+    - `text`: the text used for embedding (e.g., row as CSV or Markdown snippet)
+    - `source`: original filename
+    - `page`: page number
+    - `coords_pdf`: rectangle in PDF points
+    - `coords_px`: rectangle in raster pixels
+    - `table_id` / `row_id`: identifiers for provenance
+  - Create the final `Document` object (example schema below) that the rest of EasyRag consumes for retrieval and QA.
+
+9. Example `Document` object (simplified)
+
+```json
+{
+  "id": "file.pdf::page_3",
+  "filename": "file.pdf",
+  "page": 3,
+  "tables": [
+   {
+    "table_id": "t0",
+    "coords_pdf": [100.2, 710.3, 450.7, 620.1],
+    "coords_px": [1200, 900, 2400, 720],
+    "rows": [
+      {"row_id": "r0", "text": "Item,Qty,Price", "embedding_id": "e-123"},
+      {"row_id": "r1", "text": "Widget,2,$10.00", "embedding_id": "e-124"}
+    ]
+   }
+  ],
+  "metadata": {"uploaded_by": "user@example.com", "created_at": "2026-01-08T12:00:00Z"}
+}
+```
+
+10. Indexing & retrieval
+   - Embeddings created from each `embedding_id` are stored in the vector store (Qdrant) along with the `coords_pdf` and `table_id` within the payload/metadata.
+   - During retrieval, returned items include provenance data so UI can highlight source location and the query service can assemble an LLM prompt that includes the most relevant table rows + schema context.
+
+Notes and rationale
+- Working on rasters lets us use robust, vision-based detectors that are model-agnostic and stable across varied PDF encodings.
+- Converting coordinates back to PDF points is essential for accurate source highlighting in the UI and for any downstream human verification.
+- IOU filtering is a simple but effective way to reduce duplicated/low-quality detections before expensive parsing and embedding work.
+- Storing both pixel and PDF coordinates ensures the same detection can be used for both image overlays (frontend previews) and precise PDF-based annotations.
+
+If you'd like, I can add a small diagram (SVG) into the docs that visually shows these transformations and math for mapping pixel→PDF coordinates — tell me and I'll add one.
+The diagram below visualizes the pipeline and the pixel↔PDF coordinate math.
+
+![Pipeline diagram](docs/pipeline_diagram.svg)
+
+
 ## Contributing
 
 1. Fork the repository
@@ -513,5 +602,5 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 <p align="center">
-  <a href="#-finrag">Back to top ↑</a>
+  <a href="#-easyrag">Back to top ↑</a>
 </p>

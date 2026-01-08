@@ -3,10 +3,11 @@
   max-width: 600px;
   min-width: 310px;
   font-family: Arial, sans-serif;
-  padding: var(--spacing-lg) var(--spacing-md);
+  padding: var(--spacing-xl);
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
+  margin-left: var(--spacing-xl);
 }
 
 .file-search-input {
@@ -62,7 +63,7 @@
 }
 
 .upload-button {
-  background: var(--gradient-primary);
+  background-color: #4285f4;
 }
 
 .upload-button .button-content {
@@ -84,8 +85,7 @@
 }
 
 .upload-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-accent);
+  background-color: #3367d6;
 }
 
 .upload-button.disabled,
@@ -111,11 +111,25 @@
 }
 
 .delete-button {
-  background-color: var(--bg-elevated);
+  background-color: transparent;
+  padding: var(--spacing-sm);
+  min-width: auto;
 }
 
 .delete-button:hover:not(:disabled) {
-  background-color: var(--accent-danger);
+  background-color: rgba(234, 67, 53, 0.12);
+}
+
+.delete-button .button-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-button .icon-lg {
+  width: 20px;
+  height: 20px;
+  filter: none;
 }
 
 /* Error message */

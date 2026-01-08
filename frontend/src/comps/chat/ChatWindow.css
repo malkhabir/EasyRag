@@ -9,7 +9,8 @@
   padding: var(--spacing-lg);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
-  background: var(--bg-base);
+  /* background: var(--bg-base); */
+  background: #181818;
 }
 
 .chatbox-messages {

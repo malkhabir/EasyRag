@@ -1,8 +1,8 @@
 #!/bin/bash
 # ==============================================================================
-# FinRag Setup Script - Linux/macOS
+# EasyRag Setup Script - Linux/macOS
 # ==============================================================================
-# This script sets up the complete FinRag environment:
+# This script sets up the complete EasyRag environment:
 #   1. Checks prerequisites (Docker, Python, Node.js)
 #   2. Pulls and configures Docker containers
 #   3. Downloads required ML models
@@ -272,7 +272,7 @@ setup_environment() {
         log_info "Creating .env file from template..."
         cat > "$ENV_FILE" << EOF
 # ==============================================================================
-# FinRag Environment Configuration
+# EasyRag Environment Configuration
 # ==============================================================================
 # This file is auto-generated. Customize as needed.
 # Sensitive values (API keys) should be set here, not in models.yaml

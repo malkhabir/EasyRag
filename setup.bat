@@ -1,8 +1,8 @@
 @echo off
 REM ==============================================================================
-REM FinRag Setup Script - Windows
+REM EasyRag Setup Script - Windows
 REM ==============================================================================
-REM This script sets up the complete FinRag environment:
+REM This script sets up the complete EasyRag environment:
 REM   1. Checks prerequisites (Docker, Python, Node.js)
 REM   2. Pulls and configures Docker containers
 REM   3. Downloads required ML models
@@ -317,7 +317,7 @@ if not exist "%ENV_FILE%" (
     call :log_info "Creating .env file..."
     (
         echo # ==============================================================================
-        echo # FinRag Environment Configuration
+        echo # EasyRag Environment Configuration
         echo # ==============================================================================
         echo.
         echo # LLM Configuration
