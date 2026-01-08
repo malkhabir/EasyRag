@@ -1,0 +1,94 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+venv/
+.venv/
+ENV/
+env/
+**/venv/
+
+# ===== Node.js =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.npm
+.eslintcache
+.cache/
+
+# ===== IDE / Editor =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ===== Qdrant Storage =====
+qdrant/storage/
+
+# ===== Uploaded Files & Test Data =====
+rag-service/uploaded_pdfs/
+rag-service/imgs/
+rag-service/static/
+data/
+
+# ===== Model Files =====
+# rag-service/models/
+# models/
+
+# ===== NLTK Data =====
+rag-service/nltk_data/
+
+# ===== Environment & Secrets =====
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# ===== Logs =====
+*.log
+logs/
+
+# ===== Build Output =====
+frontend/dist/
+frontend/build/
+
+# ===== Old/Legacy Directories =====
+app-local/
+app/
+
+# ===== Helper Libraries (cloned repos) =====
+rag-service/helper/
+
+# ===== Debug Output =====
+rag-service/debug_output/
+debug_output/
+
+# ===== Test PDFs =====
+test-pdfs/
+
+# ===== Misc =====
+*.bak
+*.tmp
+*.temp

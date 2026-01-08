@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6335:6333" # Host 6335 -> Container 6333 (changed from 6334 to avoid conflict)
+    volumes:
+      - ./qdrant/storage:/qdrant/storage
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11435:11434" # Map host 11435 to Ollama default 11434 inside container
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [ gpu ]
+
+  rag-service:
+    build: ./rag-service
+    ports:
+      - "8000:8000"
+    depends_on:
+      - qdrant
+      - ollama
+    volumes:
+      - ./rag-service:/app
+    environment:
+      - QDRANT_HOST=qdrant
+      - QDRANT_PORT=6333
+      - OLLAMA_HOST=ollama # Docker network service name
+      - OLLAMA_PORT=11434 # Ollama default inside container port
+    restart: unless-stopped

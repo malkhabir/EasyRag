@@ -1,0 +1,47 @@
+# Core dependencies
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+python-dotenv>=1.0.0
+
+# FastAPI and server
+fastapi>=0.104.0
+python-multipart
+uvicorn[standard]
+aiofiles
+
+# PDF processing
+pdfplumber
+camelot-py[cv]
+PyMuPDF
+pytesseract
+
+# Build tools
+setuptools
+wheel
+ninja
+cmake
+
+# ML dependencies
+numpy
+scikit-learn
+joblib
+torch
+torchvision
+torchaudio
+
+# NLP and embeddings
+datasets
+transformers
+sentence-transformers
+
+# LlamaIndex
+llama-index
+llama-index-embeddings-huggingface
+llama-index-vector-stores-qdrant
+llama-index-llms-ollama
+
+# Vector database
+qdrant-client
+
+# Detectron2 (install separately if needed)
+# pip install detectron2 -f https://dl.fbaipublicfiles.com/detectron2/wheels/cu118/torch2.2/index.html

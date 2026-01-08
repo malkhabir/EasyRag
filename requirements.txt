@@ -1,0 +1,6 @@
+llama-index
+qdrant-client
+sentence-transformers
+fastapi
+uvicorn
+pypdf

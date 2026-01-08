@@ -1,0 +1,51 @@
+.no-files {
+  font-style: italic;
+  color: var(--text-muted);
+  margin-top: var(--spacing-3xl);
+}
+
+.uploaded-files-list {
+  list-style: none;
+  padding-left: 0;
+  height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  margin: 0;
+  background: var(--bg-input);
+}
+
+.uploaded-files-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.uploaded-files-list::-webkit-scrollbar-thumb {
+  background: var(--bg-elevated);
+  border-radius: var(--radius-sm);
+}
+
+.file-item {
+  padding: var(--spacing-sm) var(--spacing-md);
+  display: flex;
+  align-items: center;
+  background-color: transparent;
+  cursor: pointer;
+  user-select: none;
+  color: var(--text-primary);
+  transition: background-color var(--transition-fast);
+}
+
+.file-item:hover {
+  background-color: var(--bg-elevated);
+}
+
+.file-item.selected {
+  background-color: var(--accent-primary);
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.3) 0%, transparent 100%);
+  border-left: 3px solid var(--accent-primary);
+}
+
+.file-checkbox {
+  margin-right: var(--spacing-sm);
+  accent-color: var(--accent-primary);
+}

@@ -1,0 +1,8 @@
+give me the total amount in the invoice
+what about the 19% VAT amount ?
+what is the invoice period ?
+what is the total amount of transaction fee ?
+Only the total amount of transaction fee not the other fees. Add the transaction fees only
+
+Add all transaction fee and reutrn the total amount of transaction fee.
+what name is mentined in the resume ?

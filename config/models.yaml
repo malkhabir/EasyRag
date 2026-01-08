@@ -1,0 +1,200 @@
+# ==============================================================================
+# FinRag Model Configuration
+# ==============================================================================
+# This is your SINGLE configuration file for all model settings.
+# Edit this file to swap models, change providers, or customize behavior.
+#
+# After making changes:
+#   - Run `./setup.sh` (Linux/Mac) or `setup.bat` (Windows) to apply
+#   - Restart the services with `docker-compose up -d`
+# ==============================================================================
+
+# ------------------------------------------------------------------------------
+# LLM (Language Model) Configuration
+# ------------------------------------------------------------------------------
+# The LLM is used for answering questions based on retrieved context.
+#
+# SUPPORTED PROVIDERS:
+#   - ollama:    Local models via Ollama (default, free, private)
+#   - openai:    OpenAI API (GPT-3.5, GPT-4)
+#   - azure:     Azure OpenAI Service
+#   - anthropic: Claude models
+#   - custom:    Any OpenAI-compatible API
+# ------------------------------------------------------------------------------
+llm:
+  # Provider selection (ollama, openai, azure, anthropic, custom)
+  provider: "ollama"
+  
+  # Model name/identifier
+  # Ollama: phi3, llama3, llama3.1, mistral, mixtral, qwen2, codellama
+  # OpenAI: gpt-3.5-turbo, gpt-4, gpt-4-turbo
+  # Azure: your-deployment-name
+  # Anthropic: claude-3-opus, claude-3-sonnet, claude-3-haiku
+  model: "phi3"
+  
+  # Connection settings (for Ollama/custom)
+  host: "localhost"
+  port: 11435
+  
+  # API settings (for cloud providers)
+  api_key: ""  # Set via OPENAI_API_KEY env var for security
+  api_base: "" # Custom API endpoint (optional)
+  
+  # Generation parameters
+  temperature: 0.1        # Lower = more focused, higher = more creative
+  max_tokens: 2048        # Maximum response length
+  timeout: 120            # Request timeout in seconds
+  
+  # Model-specific notes:
+  # - phi3:     RECOMMENDED - Fast, excellent table understanding
+  # - llama3:   High quality reasoning, slower
+  # - llama2:   Poor table comprehension
+  # - mistral:  Good balance of speed/quality
+  # - gpt-4:    Best quality, requires API key
+
+# ------------------------------------------------------------------------------
+# Embedding Model Configuration
+# ------------------------------------------------------------------------------
+# Embeddings convert text into vectors for semantic search.
+#
+# SUPPORTED PROVIDERS:
+#   - huggingface: Local models via sentence-transformers (default, free)
+#   - openai:      OpenAI embedding API
+#   - cohere:      Cohere embedding API
+#   - custom:      Any API returning embeddings
+# ------------------------------------------------------------------------------
+embedding:
+  # Provider selection
+  provider: "huggingface"
+  
+  # Model identifier
+  # HuggingFace: BAAI/bge-m3, BAAI/bge-large-en-v1.5, sentence-transformers/all-MiniLM-L6-v2
+  # OpenAI: text-embedding-3-small, text-embedding-3-large, text-embedding-ada-002
+  # Cohere: embed-english-v3.0, embed-multilingual-v3.0
+  model: "BAAI/bge-m3"
+  
+  # Vector dimensions (MUST match model output!)
+  # BGE-M3: 1024, BGE-large: 1024, MiniLM: 384, OpenAI-small: 1536, OpenAI-large: 3072
+  dimensions: 1024
+  
+  # Local model cache directory
+  cache_dir: "models"
+  
+  # API settings (for cloud providers)
+  api_key: ""  # Set via env var for security
+  
+  # Model recommendations:
+  # - BAAI/bge-m3:           RECOMMENDED - Best for financial docs, multilingual
+  # - BAAI/bge-large-en-v1.5: English-focused, high quality
+  # - all-MiniLM-L6-v2:      Fast but less accurate
+  # - text-embedding-3-large: Best quality, requires API key
+
+# ------------------------------------------------------------------------------
+# Vector Database Configuration
+# ------------------------------------------------------------------------------
+# Qdrant stores and searches document embeddings.
+# ------------------------------------------------------------------------------
+vector_db:
+  # Provider (currently only qdrant supported)
+  provider: "qdrant"
+  
+  # Connection settings
+  host: "localhost"
+  port: 6335
+  
+  # Collection settings
+  collection_name: "accounting_docs"
+  
+  # MUST match embedding dimensions above!
+  vector_size: 1024
+  
+  # Optional: Qdrant Cloud settings
+  # api_key: ""
+  # url: "https://your-cluster.qdrant.io"
+
+# ------------------------------------------------------------------------------
+# Document Processing Configuration
+# ------------------------------------------------------------------------------
+document_processing:
+  # Table detection model
+  table_detection_model: "microsoft/table-transformer-detection"
+  
+  # Layout analysis
+  layout_model: "microsoft/dit-base-finetuned-rvlcdip"
+  
+  # PDF rendering DPI (higher = better quality, slower)
+  render_dpi: 200
+  
+  # Chunk settings for text splitting
+  chunk_size: 1000
+  chunk_overlap: 200
+
+# ------------------------------------------------------------------------------
+# Query Configuration
+# ------------------------------------------------------------------------------
+query:
+  # Number of similar documents to retrieve
+  top_k: 3
+  
+  # Minimum similarity score (0-1)
+  min_score: 0.3
+  
+  # Include metadata in results
+  include_metadata: true
+
+# ------------------------------------------------------------------------------
+# API Configuration
+# ------------------------------------------------------------------------------
+api:
+  # Server settings
+  host: "0.0.0.0"
+  port: 8080
+  
+  # CORS origins (frontend URLs)
+  cors_origins:
+    - "http://localhost:5173"
+    - "http://localhost:3000"
+  
+  # Rate limiting (requests per minute)
+  rate_limit: 60
+
+# ------------------------------------------------------------------------------
+# Logging Configuration
+# ------------------------------------------------------------------------------
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: ""  # Optional: log file path
+
+# ============================================================================
+# QUICK START PRESETS
+# ============================================================================
+# Uncomment one of these presets to quickly configure for your use case:
+#
+# --- PRESET: Local Development (Free, Private) ---
+# llm:
+#   provider: "ollama"
+#   model: "phi3"
+# embedding:
+#   provider: "huggingface"  
+#   model: "BAAI/bge-m3"
+#
+# --- PRESET: Production with OpenAI ---
+# llm:
+#   provider: "openai"
+#   model: "gpt-4-turbo"
+#   api_key: "${OPENAI_API_KEY}"
+# embedding:
+#   provider: "openai"
+#   model: "text-embedding-3-large"
+#   dimensions: 3072
+#
+# --- PRESET: Fast & Light ---
+# llm:
+#   provider: "ollama"
+#   model: "mistral"
+# embedding:
+#   provider: "huggingface"
+#   model: "sentence-transformers/all-MiniLM-L6-v2"
+#   dimensions: 384
+# ==============================================================================

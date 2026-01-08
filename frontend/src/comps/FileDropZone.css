@@ -1,0 +1,84 @@
+.file-dropzone {
+  position: relative;
+  box-sizing: border-box;
+  height: 120px;
+  padding: var(--spacing-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  cursor: pointer;
+  overflow: hidden;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+  width: 100%;
+  margin: var(--spacing-lg);
+  justify-self: center;
+  box-shadow: var(--shadow-sm);
+}
+
+/* hover effect when no file is selected */
+.file-dropzone:not(.has-file):hover {
+  background: var(--bg-panel);
+  border-color: var(--accent-primary);
+}
+
+/* drag active state — show accent border and light background */
+.file-dropzone.dragging {
+  border-color: var(--accent-primary);
+  background: var(--bg-panel);
+  box-shadow: var(--shadow-accent);
+}
+
+/* after file is selected: keep dark bg, subtle border */
+.file-dropzone.has-file {
+  border-color: var(--accent-success);
+  border-style: solid;
+  background: var(--bg-card);
+}
+
+/* hide messages if a file is selected */
+.file-dropzone.has-file .dropzone-text {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* text layering */
+.dropzone-text {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  transition: opacity 0.14s ease;
+  pointer-events: none;
+  color: var(--text-secondary);
+  font-weight: 500;
+  z-index: 0;
+  font-size: small;
+}
+
+/* default message */
+.dropzone-default {
+  opacity: 1;
+}
+
+/* message during drag */
+.file-dropzone.dragging .dropzone-dragging {
+  opacity: 1;
+}
+
+.dropzone-dragging {
+  opacity: 0;
+}
+
+/* file info */
+.selected-file {
+  position: relative;
+  z-index: 1;
+  font-size: 0.95rem;
+  text-align: center;
+  padding: 0 var(--spacing-md);
+  word-break: break-all;
+  color: var(--text-primary);
+}

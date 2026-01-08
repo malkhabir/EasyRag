@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "numpy": "^0.0.1",
+    "pickle": "^0.2.0"
+  }
+}

@@ -1,0 +1,150 @@
+.upload-window-container {
+  max-height: 520px;
+  max-width: 600px;
+  min-width: 310px;
+  font-family: Arial, sans-serif;
+  padding: var(--spacing-lg) var(--spacing-md);
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.file-search-input {
+  width: 100%;
+  padding: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  font-size: 1rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: var(--bg-input);
+  color: var(--text-primary);
+}
+
+.file-search-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: var(--focus-ring);
+}
+
+.upload-section-title {
+  margin-top: var(--spacing-xl);
+  color: var(--text-primary);
+}
+
+.upload-form {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+}
+
+.file-input {
+  flex-grow: 1;
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  font-size: 1rem;
+  box-sizing: border-box;
+  display: none;
+}
+
+/* Buttons */
+.upload-button,
+.clear-button,
+.delete-button {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background-color var(--transition-normal), transform var(--transition-fast), box-shadow var(--transition-fast);
+  color: var(--text-primary);
+}
+
+.upload-button {
+  background: var(--gradient-primary);
+}
+
+.upload-button .button-content {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.upload-button .button-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+  transition: transform var(--transition-fast);
+}
+
+.upload-button:hover:not(:disabled) .button-icon {
+  transform: translateY(-2px);
+}
+
+.upload-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-accent);
+}
+
+.upload-button.disabled,
+.upload-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.clear-button {
+  background-color: var(--bg-elevated);
+}
+
+.clear-button:hover:not(:disabled) {
+  background-color: var(--accent-warning);
+  color: var(--bg-base);
+}
+
+.clear-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.delete-button {
+  background-color: var(--bg-elevated);
+}
+
+.delete-button:hover:not(:disabled) {
+  background-color: var(--accent-danger);
+}
+
+/* Error message */
+.error-message {
+  color: var(--accent-danger);
+  margin-top: var(--spacing-sm);
+  font-weight: bold;
+}
+
+/* Modal */
+.modal-overlay {
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+}
+
+.modal-content {
+  height: 63px;
+  width: 258px;
+  margin: auto;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--accent-success);
+  background: var(--bg-card);
+  outline: none;
+  position: absolute;
+  top: 100px;
+  right: 40px;
+  box-shadow: var(--shadow-lg);
+}

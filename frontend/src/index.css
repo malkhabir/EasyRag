@@ -1,0 +1,300 @@
+:root {
+  /* ===== COLOR ACCENT SYSTEM ===== */
+
+  /* Primary accent colors */
+  --accent-primary: #667eea;
+  --accent-primary-light: #818cf8;
+  --accent-primary-dark: #4f46e5;
+
+  /* Secondary accent */
+  --accent-secondary: #764ba2;
+  --accent-secondary-light: #9333ea;
+  --accent-secondary-dark: #5b21b6;
+
+  /* Gradient */
+  --gradient-primary: linear-gradient(135deg, var(--accent-primary) 0%, var(--accent-secondary) 100%);
+  --gradient-success: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+
+  /* Success / Text content */
+  --accent-success: #38ef7d;
+  --accent-success-dark: #11998e;
+
+  /* Warning / Highlight */
+  --accent-warning: #ffc107;
+  --accent-warning-dark: #f59e0b;
+
+  /* Danger / Location */
+  --accent-danger: #e94560;
+  --accent-danger-dark: #dc2626;
+
+  /* ===== BACKGROUND COLORS ===== */
+  --bg-base: #0d0d0d;
+  --bg-elevated: #111111;
+  --bg-card: #1a1a1a;
+  --bg-card-hover: #242424;
+  --bg-panel: #1a1a2e;
+  --bg-header: #16213e;
+  --bg-input: #111;
+
+  /* ===== TEXT COLORS ===== */
+  --text-primary: #ffffff;
+  --text-secondary: #e0e0e0;
+  --text-muted: #888888;
+  --text-hint: #666666;
+
+  /* ===== BORDER COLORS ===== */
+  --border-default: #333333;
+  --border-light: #444444;
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-accent: var(--accent-primary);
+
+  /* ===== SHADOWS ===== */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --shadow-accent: 0 4px 15px rgba(102, 126, 234, 0.4);
+  --shadow-inset: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+
+  /* ===== FOCUS RING ===== */
+  --focus-ring: 0 0 0 3px rgba(102, 126, 234, 0.2);
+
+  /* ===== TRANSITIONS ===== */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.25s ease;
+  --transition-slow: 0.4s ease;
+
+  /* ===== SPACING ===== */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+
+  /* ===== BORDER RADIUS ===== */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* ===== TYPOGRAPHY ===== */
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: dark;
+  color: var(--text-primary);
+  background-color: var(--bg-base);
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: var(--accent-primary);
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: var(--accent-primary-light);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: border-color 0.25s, background-color 0.25s;
+}
+
+button:hover {
+  border-color: var(--accent-primary);
+  background-color: var(--bg-card-hover);
+}
+
+button:focus,
+button:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 2px;
+}
+
+button.primary {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+}
+
+button.primary:hover {
+  box-shadow: var(--shadow-accent);
+}
+
+/* ===== ICON SYSTEM ===== */
+/* Base icon class - apply to all icon elements */
+.icon {
+  display: inline-block;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+
+/* Icon sizes */
+.icon-xs {
+  width: 12px;
+  height: 12px;
+}
+
+.icon-sm {
+  width: 16px;
+  height: 16px;
+}
+
+.icon-md {
+  width: 20px;
+  height: 20px;
+}
+
+.icon-lg {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-xl {
+  width: 32px;
+  height: 32px;
+}
+
+/* Icon types - placeholders for PNG icons */
+/* Replace background-color with background-image: url('/icons/youricon.png') */
+
+.icon-table {
+  background-color: var(--accent-primary);
+  border-radius: var(--radius-xs);
+  /* background-image: url('/icons/table.png'); */
+}
+
+.icon-text {
+  background-color: var(--accent-success);
+  border-radius: var(--radius-xs);
+  /* background-image: url('/icons/text.png'); */
+}
+
+.icon-document {
+  background-color: var(--accent-secondary);
+  border-radius: var(--radius-xs);
+  /* background-image: url('/icons/document.png'); */
+}
+
+.icon-sources {
+  background-color: var(--accent-warning);
+  border-radius: var(--radius-xs);
+  /* background-image: url('/icons/sources.png'); */
+}
+
+.icon-send {
+  background-color: var(--text-primary);
+  border-radius: 50%;
+  /* background-image: url('/icons/send.png'); */
+}
+
+.icon-location {
+  background-color: var(--accent-danger);
+  border-radius: 50%;
+  /* background-image: url('/icons/location.png'); */
+}
+
+.icon-upload {
+  background-color: var(--accent-primary);
+  border-radius: var(--radius-xs);
+  /* background-image: url('/icons/upload.png'); */
+}
+
+.icon-delete {
+  background-color: var(--accent-danger);
+  border-radius: var(--radius-xs);
+  /* background-image: url('/icons/delete.png'); */
+}
+
+.icon-file {
+  background-color: var(--text-muted);
+  border-radius: var(--radius-xs);
+  /* background-image: url('/icons/file.png'); */
+}
+
+.icon-search {
+  background-color: var(--text-muted);
+  border-radius: var(--radius-xs);
+  /* background-image: url('/icons/search.png'); */
+}
+
+.icon-chevron-left {
+  background-color: var(--text-primary);
+  border-radius: var(--radius-xs);
+  /* background-image: url('/icons/chevron-left.png'); */
+}
+
+.icon-chevron-right {
+  background-color: var(--text-primary);
+  border-radius: var(--radius-xs);
+  /* background-image: url('/icons/chevron-right.png'); */
+}
+
+.icon-check {
+  background-color: var(--accent-success);
+  border-radius: var(--radius-xs);
+  /* background-image: url('/icons/check.png'); */
+}
+
+.icon-error {
+  background-color: var(--accent-danger);
+  border-radius: var(--radius-xs);
+  /* background-image: url('/icons/error.png'); */
+}
+
+.icon-loading {
+  background-color: var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  /* background-image: url('/icons/loading.png'); */
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
