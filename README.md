@@ -6,13 +6,36 @@
 <p align="center">
   <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version">
   <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License">
-  <img src="https://img.shields.io/badge/python-3.11+-yellow.svg" alt="Python">
-  <img src="https://img.shields.io/badge/react-18+-61DAFB.svg" alt="React">
-  <img src="https://img.shields.io/badge/docker-ready-2496ED.svg" alt="Docker">
 </p>
 
-EasyRag is a modular, enterprise-grade Retrieval-Augmented Generation (RAG) platform that extracts structured data from PDF documents with high precision. Features a pluggable provider architecture supporting any combination of local and cloud AI services.
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.11+-3776AB?logo=python&logoColor=white" alt="Python">
+  <img src="https://img.shields.io/badge/React-19.1-61DAFB?logo=react&logoColor=black" alt="React">
+  <img src="https://img.shields.io/badge/FastAPI-0.104-009688?logo=fastapi&logoColor=white" alt="FastAPI">
+  <img src="https://img.shields.io/badge/Vite-4.5-646CFF?logo=vite&logoColor=white" alt="Vite">
+</p>
 
+<p align="center">
+  <img src="https://img.shields.io/badge/LlamaIndex-RAG-FF6B6B?logo=llama&logoColor=white" alt="LlamaIndex">
+  <img src="https://img.shields.io/badge/Qdrant-Vector_DB-DC382D?logo=qdrant&logoColor=white" alt="Qdrant">
+  <img src="https://img.shields.io/badge/PyTorch-ML-EE4C2C?logo=pytorch&logoColor=white" alt="PyTorch">
+  <img src="https://img.shields.io/badge/HuggingFace-BGE--M3-FFD21E?logo=huggingface&logoColor=black" alt="HuggingFace">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Ollama-Local_LLM-000000?logo=ollama&logoColor=white" alt="Ollama">
+  <img src="https://img.shields.io/badge/OpenAI-API-412991?logo=openai&logoColor=white" alt="OpenAI">
+  <img src="https://img.shields.io/badge/Anthropic-Claude-191919?logo=anthropic&logoColor=white" alt="Anthropic">
+  <img src="https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white" alt="Docker">
+</p>
+
+EasyRag is a modular Retrieval-Augmented Generation (RAG) platform that extracts structured data from PDF documents with high precision. Features a pluggable provider architecture supporting any combination of local and cloud AI services. This project can serve as an proof of concept or maybe more than that. If you are looking to understand how RAG works then this is the project for you.
+
+<div style="flex:1;min-width:320px">
+    <p><strong>Web Interface - Query & Highlight</strong></p>
+    <img src="rag-service/examples/example.png" alt="Query response with source highlighting" style="max-width:100%;border:1px solid #ddd;padding:4px;" />
+    <p style="font-size:90%">Ask questions about your uploaded documents and get AI-powered answers with precise source highlighting. The system identifies exactly where in the PDF the answer was found, enabling quick verification and traceability.</p>
+</div>
 ---
 
 ## Overview
@@ -26,18 +49,28 @@ EasyRag is a modular, enterprise-grade Retrieval-Augmented Generation (RAG) plat
 
 ## Table of Contents
 
-- Quick Start
-- Provider Architecture
-- Features
-- Installation
-- Configuration
-- Local LLM (GPU)
-- Table Detection (TADetect → DIT)
-- Pipeline: PDF → Raster → Detect → Extract
-- Examples & Docs
-- Developer Notes
-- Contributing
-- License
+- [Quick Start](#quick-start)
+- [Provider Architecture](#provider-architecture)
+- [Technology Stack & Architecture](#technology-stack--architecture)
+  - [Tech Stack Overview](#tech-stack-overview)
+  - [Understanding Vector Indexes](#understanding-vector-indexes)
+  - [Qdrant Vector Database](#qdrant-vector-database)
+  - [Similarity Metrics Explained](#similarity-metrics-explained)
+  - [LlamaIndex Integration](#llamaindex-integration)
+  - [Embedding Model: BGE-M3](#embedding-model-bge-m3)
+- [Core Features](#core-features)
+- [Installation & Running](#installation--running)
+- [Configuration](#configuration)
+- [Local LLM (GPU)](#local-llm-ollama--gpu-considerations)
+- [Table Detection](#table-detection-tadetect--dit)
+- [Pipeline](#pipeline-pdf--raster--detect--extract)
+- [API Reference](#api-reference)
+- [Examples & Docs](#examples--docs)
+- [Developer Notes](#developer-notes)
+- [Contributing](#contributing)
+- [License](#license)
+
+[↑ Back to top](#easyrag)
 
 ---
 
@@ -133,11 +166,196 @@ curl http://localhost:8080/api/v1/providers/status
 
 ## Technology Stack & Architecture
 
-**Frontend Layer**: React + Vite application with PDF viewer, document upload, and interactive querying interface
+### Tech Stack Overview
 
-**Backend Layer**: FastAPI service with modular provider architecture supporting multiple AI backends
+| Layer | Technology | Version | Purpose |
+|-------|------------|---------|---------|
+| **Frontend** | React | 19.1.1 | UI component library |
+| | Vite | 4.5.0 | Build tool and dev server |
+| | react-pdf | 10.0.1 | PDF rendering in browser |
+| | pdfjs-dist | 5.3.31 | Mozilla's PDF.js for parsing |
+| **Backend** | Python | 3.11+ | Runtime environment |
+| | FastAPI | 0.104.0+ | Async REST API framework |
+| | Uvicorn | latest | ASGI server |
+| | Pydantic | 2.0.0+ | Data validation and settings |
+| **AI/ML** | LlamaIndex | latest | RAG orchestration framework |
+| | PyTorch | latest | Deep learning framework |
+| | Transformers | latest | HuggingFace model hub |
+| | sentence-transformers | latest | Embedding models |
+| | Detectron2 | 0.6+ | Object detection (tables) |
+| **Vector DB** | Qdrant | latest | Vector similarity search |
+| | qdrant-client | latest | Python client for Qdrant |
+| **LLM Providers** | Ollama | latest | Local LLM runtime |
+| | OpenAI API | 1.0.0+ | Cloud LLM (optional) |
+| | Anthropic API | 0.3.0+ | Claude models (optional) |
+| **PDF Processing** | PyMuPDF (fitz) | latest | PDF rasterization |
+| | pdfplumber | latest | Text extraction |
+| | camelot-py | latest | Table extraction |
+| | pytesseract | latest | OCR fallback |
+| **Infrastructure** | Docker Compose | 3.9 | Container orchestration |
 
-**Infrastructure Layer**: Qdrant vector database, configurable LLM runtime, and model artifact storage
+### Understanding Vector Indexes
+
+EasyRag uses **vector indexes** to enable semantic search over documents. Here's how it works:
+
+#### What is a Vector Index?
+
+A vector index stores numerical representations (embeddings) of text, enabling similarity-based search rather than keyword matching.
+
+```
+Traditional Search: "revenue" → matches documents containing "revenue"
+Vector Search: "how much money did we make" → matches documents about revenue, income, earnings, etc.
+```
+
+#### How EasyRag Uses Vectors
+
+1. **Embedding Generation**: Text chunks are converted to 1024-dimensional vectors using BGE-M3
+2. **Vector Storage**: Vectors are stored in Qdrant with metadata (page, coordinates, source file)
+3. **Similarity Search**: Queries are embedded and compared using cosine similarity
+4. **Top-K Retrieval**: Most similar chunks are retrieved and passed to the LLM
+
+```
+Document Text → [Embedding Model] → [0.12, -0.45, 0.89, ...] (1024 floats)
+                                           ↓
+                                    Stored in Qdrant
+                                           ↓
+Query "total revenue" → [Embedding Model] → [0.11, -0.44, 0.91, ...]
+                                           ↓
+                              Cosine Similarity Search
+                                           ↓
+                              Top 5 most similar chunks
+```
+
+#### Qdrant Vector Database
+
+[Qdrant](https://qdrant.tech/) is a high-performance vector database optimized for similarity search:
+
+| Feature | Value |
+|---------|-------|
+| Index Type | HNSW (Hierarchical Navigable Small World) |
+| Distance Metric | Cosine Similarity |
+| Vector Dimensions | 1024 (BGE-M3) |
+| Storage | Persistent on disk with in-memory indexing |
+| API | REST + gRPC |
+
+**Collection Configuration**:
+```python
+from qdrant_client.models import Distance, VectorParams
+
+client.create_collection(
+    collection_name="documents",
+    vectors_config=VectorParams(
+        size=1024,           # BGE-M3 embedding dimensions
+        distance=Distance.COSINE
+    )
+)
+```
+
+#### Similarity Metrics Explained
+
+When comparing vectors, the choice of distance metric significantly impacts search results. Here's how they differ:
+
+| Metric | Formula | Range | Best For |
+|--------|---------|-------|----------|
+| **Cosine** | 1 - (A·B / \|\|A\|\|·\|\|B\|\|) | 0 to 2 | Text embeddings, semantic similarity |
+| **Dot Product** | -A·B | -∞ to +∞ | Normalized vectors, recommendation |
+| **Euclidean** | √Σ(Aᵢ - Bᵢ)² | 0 to +∞ | Image features, spatial data |
+
+**Why EasyRag Uses Cosine Similarity**:
+
+```
+Cosine measures the angle between vectors, ignoring magnitude:
+
+Vector A: [0.8, 0.6]      ─────→  
+Vector B: [0.4, 0.3]      ───→    Same direction = Similar meaning
+Vector C: [-0.6, 0.8]     ↑       Different direction = Different meaning
+
+Cosine(A, B) = 1.0  (identical direction, highly similar)
+Cosine(A, C) = 0.0  (perpendicular, unrelated)
+```
+
+**Comparison**:
+
+| Scenario | Cosine | Euclidean | Dot Product |
+|----------|--------|-----------|-------------|
+| "revenue report" vs "income statement" | ✅ High (same meaning) | ⚠️ May vary | ✅ High |
+| Short text vs Long text (same topic) | ✅ High (ignores length) | ❌ Low (different magnitude) | ❌ Varies |
+| Normalized embeddings | ✅ Works well | ✅ Works well | ✅ Equivalent to Cosine |
+
+**When to use each**:
+
+- **Cosine**: Best for text/semantic search where meaning matters more than vector magnitude. Most embedding models (including BGE-M3) are optimized for cosine similarity.
+
+- **Euclidean (L2)**: Better for spatial data, image features, or when absolute distances matter. Sensitive to vector magnitude.
+
+- **Dot Product**: Fast computation, works well when vectors are pre-normalized. Used in recommendation systems and some neural retrievers.
+
+**Code example - switching metrics**:
+```python
+from qdrant_client.models import Distance
+
+# Cosine similarity (default for text)
+Distance.COSINE
+
+# Euclidean distance
+Distance.EUCLID
+
+# Dot product
+Distance.DOT
+```
+
+### LlamaIndex Integration
+
+EasyRag uses [LlamaIndex](https://www.llamaindex.ai/) as the core RAG framework:
+
+| Component | LlamaIndex Module | Purpose |
+|-----------|-------------------|---------|
+| Vector Store | `llama-index-vector-stores-qdrant` | Qdrant integration for vector storage |
+| Embeddings | `llama-index-embeddings-huggingface` | BGE-M3 embeddings (1024 dimensions) |
+| LLM | `llama-index-llms-ollama` | Local Ollama model integration |
+| Index | `VectorStoreIndex` | Document indexing and retrieval |
+| Query Engine | `as_query_engine()` | Natural language querying with sources |
+
+**Key Configuration** (in `main.py`):
+```python
+from llama_index.core import Settings, VectorStoreIndex
+
+# Configure global LlamaIndex settings
+Settings.embed_model = embed_model.get()  # HuggingFace BGE-M3
+Settings.llm = llm_model.get()            # Ollama phi3/llama2
+```
+
+**Indexing Flow**:
+```python
+# Create vector store with Qdrant
+vector_store = QdrantVectorStore(client=qdrant_client, collection_name="documents")
+storage_context = StorageContext.from_defaults(vector_store=vector_store)
+
+# Index documents
+index = VectorStoreIndex.from_documents(documents, storage_context=storage_context)
+```
+
+**Query Flow**:
+```python
+# Create query engine with similarity search
+query_engine = index.as_query_engine(similarity_top_k=5)
+response = query_engine.query("What is the total revenue?")
+# Response includes answer + source nodes with metadata
+```
+
+### Embedding Model: BGE-M3
+
+EasyRag uses [BAAI/bge-m3](https://huggingface.co/BAAI/bge-m3) for embeddings:
+
+| Property | Value |
+|----------|-------|
+| Model | BAAI/bge-m3 |
+| Dimensions | 1024 |
+| Max Tokens | 8192 |
+| Languages | 100+ (multilingual) |
+| Features | Dense + Sparse + ColBERT retrieval |
+
+BGE-M3 was chosen for its strong performance on retrieval benchmarks and multilingual support.
 
 ---
 
@@ -249,15 +467,46 @@ Steps summary:
 2. Run TADetect → get candidate boxes (pixels).
 3. Crop + run DIT on proposals → fine cell boxes (relative to crop).
 4. Expand/pad boxes and normalize coordinates.
-5. IOU filtering: remove tiny/duplicate boxes and merge overlapping detections.
-6. Map final pixel coords → PDF points for precise frontend highlights.
-7. Parse tables (Camelot/custom) → rows/cells, serialize to CSV/JSON/Markdown.
-8. Create embedding records (text + metadata) and assemble `Document` objects for indexing.
+5. Map final pixel coords → PDF points for precise frontend highlights.
+6. Parse tables (Camelot/custom) → rows/cells, serialize to CSV/JSON/Markdown.
+7. Create embedding records (text + metadata) and assemble `Document` objects for indexing.
 
 Why store both pixel and PDF coords?
 
 - Pixel coords are useful for image overlays and debugging.
 - PDF coords are essential to map highlights to the original vector PDF for exact provenance.
+
+---
+
+## API Reference
+
+### Document Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/v1/upload` | Upload a PDF document |
+| `GET` | `/api/v1/files` | List all uploaded files |
+| `GET` | `/api/v1/files/{filename}` | Download/view a specific file |
+| `DELETE` | `/api/v1/files/{filename}` | Delete a file |
+
+### Query Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v1/query?q={query}` | Query documents with natural language |
+| `GET` | `/api/v1/query?q={query}&files={file1}&files={file2}` | Query specific files |
+
+### Provider Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v1/providers/llm` | List available LLM providers |
+| `GET` | `/api/v1/providers/embedding` | List embedding providers |
+| `POST` | `/api/v1/providers/llm/switch` | Switch LLM provider |
+| `POST` | `/api/v1/providers/embedding/switch` | Switch embedding provider |
+| `GET` | `/api/v1/providers/status` | System health status |
+
+Full API documentation available at `http://localhost:8080/docs` when running.
 
 ---
 
@@ -514,20 +763,15 @@ This section explains the exact path a PDF takes inside EasyRag from an uploaded
   - Optionally expand the DIT boxes slightly (padding) to include cell borders and nearby context (helps table parsers like Camelot recover separators).
   - Normalize coordinate formats so all boxes use the same origin/units (e.g., pixels, top-left origin).
 
-5. IOU-based filtering & de-duplication
-  - Compute pairwise IOU (intersection-over-union) among detected boxes and between TADetect proposals and DIT boxes.
-  - Use IOU thresholds to: (a) drop tiny false-positive boxes, (b) merge near-duplicate detections, and (c) prefer higher-confidence DIT boxes over coarse proposals.
-  - This reduces noise and prevents overlapping/ambiguous table regions from polluting downstream extraction.
-
-6. Convert coordinates back to PDF space
+5. Convert coordinates back to PDF space
   - Map the final pixel coordinates (from raster / crop math) back to PDF coordinates (points) so the frontend can highlight exact areas on the original PDF page.
   - Store both coordinate systems — pixel for image overlays and PDF points for vector-aware viewers.
 
-7. Table parsing & serialization
+6. Table parsing & serialization
   - For each final table region, run a table parser (e.g., Camelot or custom coordinate-based extractor) to produce rows/cells.
   - Serialize table outputs to CSV, Markdown, and a compact JSON representation that preserves header rows, cell spans, and numeric parsing.
 
-8. Embedding metadata & document object creation
+7. Embedding metadata & document object creation
   - For indexing, create embedding entries at a chosen granularity (row-level, cell-level, or table-level). Each embedding record includes:
     - `text`: the text used for embedding (e.g., row as CSV or Markdown snippet)
     - `source`: original filename
@@ -537,7 +781,7 @@ This section explains the exact path a PDF takes inside EasyRag from an uploaded
     - `table_id` / `row_id`: identifiers for provenance
   - Create the final `Document` object (example schema below) that the rest of EasyRag consumes for retrieval and QA.
 
-9. Example `Document` object (simplified)
+8. Example `Document` object (simplified)
 
 ```json
 {
@@ -559,14 +803,13 @@ This section explains the exact path a PDF takes inside EasyRag from an uploaded
 }
 ```
 
-10. Indexing & retrieval
+9. Indexing & retrieval
    - Embeddings created from each `embedding_id` are stored in the vector store (Qdrant) along with the `coords_pdf` and `table_id` within the payload/metadata.
    - During retrieval, returned items include provenance data so UI can highlight source location and the query service can assemble an LLM prompt that includes the most relevant table rows + schema context.
 
 Notes and rationale
 - Working on rasters lets us use robust, vision-based detectors that are model-agnostic and stable across varied PDF encodings.
 - Converting coordinates back to PDF points is essential for accurate source highlighting in the UI and for any downstream human verification.
-- IOU filtering is a simple but effective way to reduce duplicated/low-quality detections before expensive parsing and embedding work.
 - Storing both pixel and PDF coordinates ensures the same detection can be used for both image overlays (frontend previews) and precise PDF-based annotations.
 
 If you'd like, I can add a small diagram (SVG) into the docs that visually shows these transformations and math for mapping pixel→PDF coordinates — tell me and I'll add one.
