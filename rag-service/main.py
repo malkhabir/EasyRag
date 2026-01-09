@@ -50,7 +50,7 @@ settings = get_settings()
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan manager."""
-    logger.info("Starting FinRag RAG Service...")
+    logger.info("Starting EasyRag RAG Service...")
 
     try:
         # Initialize all services

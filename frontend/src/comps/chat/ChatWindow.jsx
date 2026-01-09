@@ -37,7 +37,7 @@ const ChatWindow = ({
     if (isTable) {
       return (
         <span className="source-content">
-          <span className="source-icon icon-table"></span>
+          <img src="grid.png" className="icon-lg" alt="Table Icon" />
           <span className="source-file">{src.file_name}</span>
           <span className="source-separator">—</span>
           <span className="source-detail">
@@ -52,7 +52,7 @@ const ChatWindow = ({
     
     return (
       <span className="source-content">
-        <span className="source-icon icon-text"></span>
+        <img src="text.png" className="icon-lg" alt="Text Icon" />
         <span className="source-file">{src.file_name}</span>
         <span className="source-separator">—</span>
         <span className="source-detail">
@@ -73,7 +73,7 @@ const ChatWindow = ({
             {m.isBot && m.sources && m.sources.length > 0 && (
               <div className="chat-sources">
                 <div className="sources-header">
-                  <span className="source-icon icon-sources"></span>
+                  <img src="index.png" className="icon-lg" alt="" />
                   <strong>Sources ({m.sources.length})</strong>
                   <span className="sources-hint">Click to highlight in document</span>
                 </div>

@@ -85,8 +85,10 @@
 }
 
 .chat-message.user {
-  background: var(--gradient-primary);
-  color: var(--text-primary);
+  /* background: var(--gradient-primary);
+  color: var(--text-primary); */
+  background: white;
+  color: #000000;
   margin-left: 100px;
   padding: var(--spacing-md) var(--spacing-lg);
   border-radius: var(--radius-lg) var(--radius-lg) var(--radius-sm) var(--radius-lg);
@@ -107,7 +109,7 @@
 .chat-sources {
   margin-top: var(--spacing-md);
   padding: var(--spacing-md);
-  background: var(--bg-elevated);
+  background: #232121;
   border-radius: var(--radius-md);
   border: 1px solid var(--border-subtle);
 }
@@ -152,12 +154,12 @@
 
 .source-item.table {
   background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, transparent 100%);
-  border-left: 3px solid var(--accent-primary);
+  /* border-left: 3px solid var(--accent-primary); */
 }
 
 .source-item.text {
   background: linear-gradient(90deg, rgba(56, 239, 125, 0.1) 0%, transparent 100%);
-  border-left: 3px solid var(--accent-success);
+  /* border-left: 3px solid var(--accent-success); */
 }
 
 .source-link {
@@ -195,16 +197,16 @@
 
 .source-icon.icon-table {
   /* Replace with your table icon PNG */
-  background-color: var(--accent-primary);
+  background-color: #00000000;
   border-radius: var(--radius-xs);
   /* background-image: url('/icons/table.png'); */
 }
 
 .source-icon.icon-text {
   /* Replace with your text/document icon PNG */
-  background-color: var(--accent-success);
+  background-color: #00000000;
   border-radius: var(--radius-xs);
-  /* background-image: url('/icons/text.png'); */
+  background-image: url(/icons/text.png);
 }
 
 .source-icon.icon-sources {

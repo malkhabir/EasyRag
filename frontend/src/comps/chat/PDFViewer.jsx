@@ -181,12 +181,12 @@ const PDFViewer = ({
         <div ref={containerRef} className="pdf-viewer-container">
             <div className="pdf-viewer-header">
                 <span className="pdf-page-info">Page {pageNumber} of {numPages || "?"}</span>
-                {contentType && (
+                {/* {contentType && (
                     <span className={`content-type-badge ${contentType}`}>
                         <span className={`badge-icon icon-${contentType}`}></span>
                         {contentType === "table" ? "Table" : "Text"}
                     </span>
-                )}
+                )} */}
                 {tableRegion && (
                     <span className="region-badge">
                         <span className="badge-icon icon-location"></span>

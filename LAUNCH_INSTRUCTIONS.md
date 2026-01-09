@@ -1,4 +1,4 @@
-# FinRag Launch Instructions
+# EasyRag Launch Instructions
 
 ## Quick Start (VS Code)
 

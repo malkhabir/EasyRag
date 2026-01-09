@@ -1,4 +1,4 @@
-# AI Models Guide for FinRag
+# AI Models Guide for EasyRag
 
 This document covers the best free models available for document understanding, table detection, and embeddings.
 

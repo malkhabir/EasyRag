@@ -5,6 +5,7 @@
 }
 
 .uploaded-files-list {
+  place-items: center;
   list-style: none;
   padding-left: 0;
   height: 200px;
@@ -41,7 +42,8 @@
 
 .file-item.selected {
   background-color: rgba(66, 133, 244, 0.12);
-  border-left: 3px solid #4285f4;
+  /* border-left: 3px solid #4285f4; */
+  width: -webkit-fill-available;
 }
 
 .file-checkbox {

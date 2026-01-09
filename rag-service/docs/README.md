@@ -1,4 +1,4 @@
-# FinRag RAG Service
+# EasyRag RAG Service
 
 Production-grade RAG (Retrieval-Augmented Generation) service for financial document processing.
 
