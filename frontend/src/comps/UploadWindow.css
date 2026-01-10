@@ -1,5 +1,12 @@
+.my-docs {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: var(--spacing-md);
+}
+
 .upload-window-container {
-  max-height: 520px;
+  /* max-height: 520px; */
   max-width: 600px;
   min-width: 310px;
   font-family: Arial, sans-serif;

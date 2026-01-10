@@ -1,6 +1,9 @@
-# EasyRag
 
-<p align="center"><img src="./finrag.png" alt="EasyRag logo" style="max-width:220px; height:100px;"></p>
+
+<p align="center">
+  <img src="./finrag.png" alt="EasyRag logo" style="max-width:220px; height:100px;">
+    <p style="font-size:30px">EasyRag</p>
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/version-1.0.0-blue.svg" alt="Version">
@@ -175,7 +178,10 @@ curl http://localhost:8080/api/v1/providers/status
 | | PyTorch | latest | Deep learning framework |
 | | Transformers | latest | HuggingFace model hub |
 | | sentence-transformers | latest | Embedding models |
-| | Detectron2 | 0.6+ | Object detection (tables) |
+| | Detectron2 | 0.6+ | Object detection (layout) |
+| **Document Detection** | [DIT](https://huggingface.co/nevernever69/dit-doclaynet-segmentation) | latest | Semantic segmentation (page layout) |
+| | [TADetect](https://huggingface.co/microsoft/table-transformer-detection) | latest | Object detection (table regions) |
+| | [TATR](https://huggingface.co/microsoft/table-transformer-structure-recognition) | latest | Table structure recognition |
 | **Vector DB** | Qdrant | latest | Vector similarity search |
 | **LLM Providers** | Ollama | latest | Local LLM runtime |
 | | OpenAI API | 1.0.0+ | Cloud LLM (optional) |
@@ -269,65 +275,145 @@ response = query_engine.query("What is the total revenue?")
 
 ## Table Detection Pipeline
 
-EasyRag uses a two-stage pipeline for accurate table extraction from PDFs.
+EasyRag uses a multi-model pipeline for accurate table extraction from PDFs. The system recursively detects nested tables using a tree-based approach, treating each document page as a hierarchy of table containers and atomic tables (leaves).
 
-### Pipeline Overview
+### Detection Models
+
+The pipeline uses three primary detection models from HuggingFace. Each serves a specific purpose in the detection hierarchy.
+
+#### Active Models
+
+| Model | Type | How It Works | Best For | HuggingFace Link |
+|-------|------|--------------|----------|------------------|
+| **DIT** | Semantic Segmentation | Classifies **every pixel** into categories (table, text, figure, etc.), then finds contours | Full-page layout, leaf validation | [nevernever69/dit-doclaynet-segmentation](https://huggingface.co/nevernever69/dit-doclaynet-segmentation) |
+| **TADetect** | Object Detection | Predicts **bounding boxes** with confidence scores | Fast table region detection | [microsoft/table-transformer-detection](https://huggingface.co/microsoft/table-transformer-detection) |
+| **TATR** | Object Detection | Detects table **cells, rows, columns** within a table | Table structure recognition | [microsoft/table-transformer-structure-recognition](https://huggingface.co/microsoft/table-transformer-structure-recognition) |
+
+#### Available Models (Not Yet Integrated)
+
+| Model | Type | Purpose | Source |
+|-------|------|---------|--------|
+| **Detectron2** | Object Detection | Layout detection using Faster R-CNN | [LayoutParser Model Zoo](https://layout-parser.readthedocs.io/en/latest/notes/modelzoo.html) |
+| **LayoutLMv3** | Token Classification | Form understanding with text + layout | [nielsr/layoutlmv3-finetuned-funsd](https://huggingface.co/nielsr/layoutlmv3-finetuned-funsd) |
+| **Donut** | Vision Encoder-Decoder | End-to-end document understanding | [naver-clova-ix/donut-base-finetuned-cord-v2](https://huggingface.co/naver-clova-ix/donut-base-finetuned-cord-v2) |
+
+### Recursive Table Detection (Tree Structure)
+
+Documents with complex layouts often contain **nested tables** - tables within tables. EasyRag handles this by building a tree structure:
 
 ```
-PDF → Rasterize → TADetect (fast) → DIT (precise) → Parse → Embed → Index
+Page (Root)
+├── Table A (Container) ──► DIT finds 2 sub-tables
+│   ├── Table A.1 (Leaf) ──► DIT finds 0-1 tables, confirmed atomic
+│   └── Table A.2 (Leaf) ──► DIT finds 0-1 tables, confirmed atomic
+├── Table B (Leaf) ──► DIT finds 0-1 tables, already atomic
+└── Text Block (ignored)
 ```
 
-<div style="display:flex;gap:24px;flex-wrap:wrap">
-  <div style="flex:1;min-width:320px">
-    <p><strong>TADetect (Stage 1)</strong></p>
-    <img src="rag-service/examples/TADECT.png" alt="Table detection summary" style="max-width:100%;border:1px solid #ddd;padding:4px;" />
-    <p style="font-size:90%">Fast region proposals identifying candidate table areas.</p>
-  </div>
-  <div style="flex:1;min-width:320px">
-    <p><strong>DIT (Stage 2)</strong></p>
-    <img src="rag-service/examples/DIT.png" alt="Annotated invoice with table cells" style="max-width:100%;border:1px solid #ddd;padding:4px;" />
-    <p style="font-size:90%">Precise cell boundaries and structure for extraction.</p>
-  </div>
-</div>
+**Key Concepts:**
+- **Container**: A table region that contains other tables inside it
+- **Leaf**: An atomic table with no sub-tables (ready for text extraction)
+- **Depth**: How many levels deep in the tree (0 = page level, 1 = first nesting, etc.)
 
-### Why Two Stages?
+**Algorithm:**
+1. **Initial Detection**: Run DIT on the full page to find all table regions
+2. **Recursive Descent**: For each detected table, run DIT again on the cropped region
+3. **Leaf Validation**: If DIT finds 2+ tables inside, it's a container → recurse deeper
+4. **Stopping Criteria**: Stop recursing when sub-tables are too small or too many are detected
+5. **Output**: Only leaf tables (atomic units) are sent for text extraction
 
-- **TADetect (fast)**: High-recall detector scans entire page quickly to find candidate regions
-- **DIT (precise)**: Transformer model runs only on candidates for exact cell boundaries
+### Stopping Criteria (Tunable Constants)
 
-This gives the best trade-off: cheap global scanning + expensive precise pass only where needed.
+Without stopping criteria, DIT would recurse forever, eventually detecting individual cells as "tables". These constants control when to stop:
 
-### Detailed Steps
+| Constant | Default | Description |
+|----------|---------|-------------|
+| `SELF_DETECTION_RATIO` | 0.95 | Skip if sub-table is ≥95% of parent (self-detection) |
+| `MIN_TABLE_WIDTH_PX` | 80px | Skip sub-tables narrower than this |
+| `MIN_TABLE_HEIGHT_PX` | 50px | Skip sub-tables shorter than this |
+| `MIN_TABLE_AREA_PX` | 4000px² | Skip tiny fragments |
+| `MIN_SUBTABLE_AREA_RATIO` | 5% | Skip if sub-table is <5% of parent area |
+| `MAX_ASPECT_RATIO` | 8.0 | Skip extreme strips (likely rows/columns, not tables) |
+| `MAX_SUBTABLES_PER_REGION` | 10 | If >10 detected, it's cells not tables → stop |
+| `MAX_RECURSIVE_DEPTH` | 5 | Maximum tree depth to prevent infinite recursion |
 
-1. **Rasterize**: Convert PDF page to image (300 DPI)
-2. **TADetect**: Get candidate table boxes (pixels)
-3. **DIT**: Crop and refine to get cell boundaries
-4. **Normalize**: Expand boxes, normalize coordinates
-5. **Convert**: Map pixel coords → PDF points for highlighting
-6. **Parse**: Extract rows/cells via Camelot, serialize to CSV/JSON/Markdown
-7. **Embed**: Create embeddings with metadata (page, coords, source)
-8. **Index**: Store in Qdrant for retrieval
+**Tuning Guide:**
+- **DIT finds cells instead of tables?** → Increase `MIN_TABLE_WIDTH_PX`, `MIN_TABLE_AREA_PX`
+- **DIT misses valid sub-tables?** → Decrease those values
+- **Rows/columns detected as tables?** → Decrease `MAX_ASPECT_RATIO`
+- **Too many fragments?** → Decrease `MAX_SUBTABLES_PER_REGION`
 
-### Document Object Schema
+### Segmentation vs Object Detection
 
-```json
-{
-  "id": "file.pdf::page_3",
-  "filename": "file.pdf",
-  "page": 3,
-  "tables": [{
-    "table_id": "t0",
-    "coords_pdf": [100.2, 710.3, 450.7, 620.1],
-    "coords_px": [1200, 900, 2400, 720],
-    "rows": [
-      {"row_id": "r0", "text": "Item,Qty,Price", "embedding_id": "e-123"},
-      {"row_id": "r1", "text": "Widget,2,$10.00", "embedding_id": "e-124"}
-    ]
-  }]
-}
+| Aspect | Segmentation (DIT) | Object Detection (TADetect) |
+|--------|-------------------|---------------------------|
+| **Output** | Pixel mask (each pixel gets a class label) | Bounding boxes with confidence scores |
+| **Precision** | Exact boundaries at pixel level | Rectangular boxes only |
+| **Context Needed** | Requires full document layout context | Works on isolated crops |
+| **Speed** | Slower (processes all pixels) | Faster (sparse predictions) |
+| **Use Case** | Page-level detection, leaf validation | Fast initial scanning |
+
+**Why DIT for leaf validation?** DIT consistently finds 2 tables when a region contains nested tables, and 0-1 when it's truly atomic. This binary signal is reliable for determining container vs leaf status.
+
+### Pipeline Flow
+
+```
+PDF Page
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Stage 1: Initial Detection (DIT on full page)             │
+│  - Finds all table regions with full document context      │
+│  - Output: List of candidate table boxes                   │
+└─────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Stage 2: Recursive Nesting Detection                      │
+│  - For each table, crop region and run DIT again           │
+│  - If 2+ sub-tables found → mark as container, recurse     │
+│  - If 0-1 sub-tables → mark as leaf, stop                  │
+│  - Apply stopping criteria to prevent over-segmentation    │
+└─────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Stage 3: Leaf Validation                                  │
+│  - Final DIT pass on each "leaf" to confirm it's atomic    │
+│  - If DIT finds 2+ tables → split and re-validate          │
+│  - Ensures no nested tables are missed                     │
+└─────────────────────────────────────────────────────────────┘
+    │
+    ▼
+┌─────────────────────────────────────────────────────────────┐
+│  Stage 4: Text Extraction & Embedding                      │
+│  - Only leaf tables are processed                          │
+│  - Extract text via Camelot/pdfplumber                     │
+│  - Generate embeddings, store in Qdrant                    │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-![Pipeline diagram](docs/pipeline_diagram.svg)
+### Configuration File
+
+All detection parameters are in `rag-service/app/document_processing/constants.py`:
+
+```python
+# Detection model selection
+NESTED_DETECTION_MODEL = "dit_only"  # "dit_only", "tadetect_only", or "both"
+VALIDATE_LEAVES_WITH_DIT = True      # Final validation pass
+
+# Confidence thresholds
+TADETECT_TABLE_CONF_THRESHOLD = 0.15  # Lower = more sensitive
+TATR_TABLE_CONF_THRESHOLD = 0.3
+
+# Stopping criteria
+MIN_TABLE_WIDTH_PX = 80
+MIN_TABLE_HEIGHT_PX = 50
+MIN_TABLE_AREA_PX = 4000
+MAX_ASPECT_RATIO = 8.0
+MAX_SUBTABLES_PER_REGION = 10
+MAX_RECURSIVE_DEPTH = 5
+```
 
 ---
 

@@ -126,7 +126,7 @@ const UploadWindow = ({ selectedFiles, setSelectedFiles, onFileClick }) => {
 
   return (
     <div className="upload-window-container">
-      <div className="my-docs" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+      <div className="my-docs">
         <img src="library.png" className="icon-lg" alt="Library Icon" />
         <h2 style={{ fontFamily: "'SF Mono', 'Fira Code', monospace" }}>Docs</h2>
       </div>
